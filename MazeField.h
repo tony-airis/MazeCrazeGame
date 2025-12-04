@@ -58,7 +58,7 @@ public:
     
     void MayMove(string command) {
         int step = player.step;
-        int* coord = &player.coord.first;
+        int* coord = &player.x;
         // смещение(переменная для выбора x или y в объекте wall)
         int offset = 0;
         // проверка уменьшается ли координата на которую мы смещаемся (y перевернутый)
@@ -68,7 +68,7 @@ public:
         // проверяем идем мы по иксу или по игрику(какую пользовательскую координату надо менять)
         if ((command == "up") || (command == "down")) {
             // сохраняем по ссылке чтобы сразу менять переменную в объекте игрока
-            coord = &player.coord.second;
+            coord = &player.y;
             offset = 1;
         }
 

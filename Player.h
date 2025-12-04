@@ -5,32 +5,37 @@
 using namespace std;
 
 class Player {
+
 public:
+    int x;
+    int y;
+    int size = 60;
     // coord first - x, coord second - y
-    pair <int, int> coord;
+    //pair <int, int> coord;
     int step;
 
     Player() {
-        coord = make_pair(20, 40);
-        step = 5;
+        //coord = make_pair(20, 40);
+        step = 10;
     }
+    
 
-    pair <int, int> GetXY() {
+    /*pair <int, int> GetXY() {
         return coord;
-    }
+    }*/
 
     void ChangeCoord(string command) {
         if (command == "up") {
-            coord.second -= step;
+            y -= step;
         }
         if (command == "down") {
-            coord.second += step;
+            y += step;
         }
         if (command == "left") {
-            coord.first -= step;
+            x -= step;
         }
         if (command == "right") {
-            coord.first += step;
+            x += step;
         }
     }
 };
