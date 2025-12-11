@@ -20,6 +20,11 @@ namespace MazeCraze {
 	public ref class MazeFieldForm : public System::Windows::Forms::Form
 	{
 	public:
+		//Создание графических инструментов
+		Pen^ pen = gcnew Pen(Color::Blue, 10);
+		SolidBrush^ brushwhite = gcnew SolidBrush(Color::White);
+		SolidBrush^ brushblue = gcnew SolidBrush(Color::Blue);
+
 		MazeField* MazeFieldObj; // создаем указатель MazeField (класс, который писал я)
 		Form^ MainMenuObj; // создаем указатель на MainMenuForm (первую выскакивающую форму)
 		Player* PlayerObj; // создаем указатель на Player (класс, который писал я)
@@ -29,15 +34,15 @@ namespace MazeCraze {
 			InitializeComponent();
 			// создаем объекты моего класса
 			MazeFieldObj = new MazeField();  
+			
 			PlayerObj = new Player();
 			PlayerObj->x = 0;
 			PlayerObj->y = 190;
+			
 			// присваиваем ссылку на MainMenuForm
 			this->MainMenuObj = MMObj; 
-			
 
-
-
+			MazeFieldObj->CreateField();
 		}
 
 	protected:
@@ -99,10 +104,6 @@ namespace MazeCraze {
 	private: System::Void MazeFieldForm_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e) {
 		Refresh();
 		Graphics^ g = e->Graphics;
-		MazeFieldObj->CreateField();
-		Pen^ pen = gcnew Pen(Color::Blue, 10);
-		SolidBrush^ brushwhite = gcnew SolidBrush(Color::White);
-		SolidBrush^ brushblue = gcnew SolidBrush(Color::Blue);
 		// Рисуем прямоугольник с верхним левым углом в точке (20, 20) и размерами 150x100
 		/*g->DrawRectangle(pen, 20, 20, 150, 100);
 		g->FillRectangle(brush, 20, 20, 150, 100); */
@@ -111,25 +112,23 @@ namespace MazeCraze {
 			//в coord сохранится x1, y1, x2, y2
 			int x1 = MazeFieldObj->walls[i].coord[0], y1 = MazeFieldObj->walls[i].coord[1];
 			int width = MazeFieldObj->walls[i].coord[2], height = MazeFieldObj->walls[i].coord[3];
-			cout << x1 << y1 << width << height;
 			g->FillRectangle(brushwhite, x1, y1, width, height);
 		}
 		g->FillRectangle(brushblue, PlayerObj->x, PlayerObj->y, PlayerObj->size, PlayerObj->size);
-		
 	}	
 	private: System::Void MazeFieldForm_KeyDown(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e) {
 		// Провека на W or w
 		if (((int)e->KeyCode == 87) || ((int)e->KeyCode == 119)) {
-			PlayerObj->ChangeCoord("up");
+			MazeFieldObj->MayMove(PlayerObj, "up");
 		}
 		if (((int)e->KeyCode == 83) || ((int)e->KeyCode == 115)) {
-			PlayerObj->ChangeCoord("down");
+			MazeFieldObj->MayMove(PlayerObj, "down");
 		}
 		if (((int)e->KeyCode == 65) || ((int)e->KeyCode == 97)) {
-			PlayerObj->ChangeCoord("left");
+			MazeFieldObj->MayMove(PlayerObj, "left");
 		}
 		if (((int)e->KeyCode == 68) || ((int)e->KeyCode == 100)) {
-			PlayerObj->ChangeCoord("right");
+			MazeFieldObj->MayMove(PlayerObj, "right");
 		}
 		
 	}
