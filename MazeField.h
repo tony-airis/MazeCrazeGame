@@ -2,6 +2,7 @@
 #include <vector>
 #include "Wall.h"
 #include "Player.h"
+#include "WinArea.h"
 #include <string>
 
 using namespace std;
@@ -9,54 +10,46 @@ using namespace std;
 class MazeField {
 public:
     vector <Wall> walls;
+    vector <WinArea> winareas;
     //Player player;
 
     void CreateField() {
-    /*walls.push_back(Wall(0, 0, 550, 10));
-    walls.push_back(Wall(0, 0, 10, 180));
-    walls.push_back(Wall(0, 180, 100, 10));
-    walls.push_back(Wall(90, 90, 100, 10));
-    walls.push_back(Wall(170, 90, 10, 180));
-    walls.push_back(Wall(0, 260, 180, 10));
-    walls.push_back(Wall(0, 260, 10, 550-260));
-    walls.push_back(Wall(0, 540, 360, 10));
-    walls.push_back(Wall(360, 360, 10, 190));
-    walls.push_back(Wall(360, 360, 100, 10));
-    walls.push_back(Wall(450, 180, 10, 190));
-    walls.push_back(Wall(540, 0, 10, 550));
-    walls.push_back(Wall(450, 450, 10, 100));
-    walls.push_back(Wall(450, 540, 100, 10));
-    walls.push_back(Wall(360, 90, 180, 10));
-    walls.push_back(Wall(360, 90, 10, 100));
-    walls.push_back(Wall(260, 0, 10, 370));
-    walls.push_back(Wall(260, 260, 100, 10));
-    walls.push_back(Wall(90, 360, 180, 10));
-    walls.push_back(Wall(90, 360, 10, 100));
-    walls.push_back(Wall(90, 460, 180, 10));*/
-    walls.push_back(Wall(0, 0, 550, 15));
-    walls.push_back(Wall(0, 0, 15, 180));
-    walls.push_back(Wall(0, 170, 90, 15));
-    walls.push_back(Wall(90, 90, 90, 15));
-    walls.push_back(Wall(170, 90, 15, 180));
-    walls.push_back(Wall(0, 260, 180, 15));
-    walls.push_back(Wall(0, 260, 15, 550 - 260));
-    walls.push_back(Wall(0, 540, 360, 15));
-    walls.push_back(Wall(360, 360, 15, 190));
-    walls.push_back(Wall(360, 360, 100, 15));
-    walls.push_back(Wall(450, 180, 15, 190));
-    walls.push_back(Wall(540, 0, 15, 550));
-    walls.push_back(Wall(450, 450, 15, 90));
-    walls.push_back(Wall(450, 540, 90, 15));
-    walls.push_back(Wall(360, 90, 180, 15));
-    walls.push_back(Wall(360, 90, 15, 90));
-    walls.push_back(Wall(260, 0, 15, 370));
-    walls.push_back(Wall(260, 260, 100, 15));
-    walls.push_back(Wall(90, 360, 180, 15));
-    walls.push_back(Wall(90, 360, 15, 100));
-    walls.push_back(Wall(90, 460, 180, 15));
+        //область победы
+        winareas.push_back(WinArea(360, 560, 460, 660));
+        //стены
+        walls.push_back(Wall(0, 0, 550, 15));
+        walls.push_back(Wall(0, 0, 15, 185));
+        walls.push_back(Wall(0, 170, 95, 15));
+        walls.push_back(Wall(90, 90, 95, 15));
+        walls.push_back(Wall(170, 90, 15, 185));
+        walls.push_back(Wall(0, 260, 185, 15));
+        walls.push_back(Wall(0, 260, 15, 555 - 260));
+        walls.push_back(Wall(0, 540, 365, 15));
+        walls.push_back(Wall(360, 360, 15, 195));
+        walls.push_back(Wall(360, 360, 105, 15));
+        walls.push_back(Wall(450, 180, 15, 195));
+        walls.push_back(Wall(540, 0, 15, 555));
+        walls.push_back(Wall(450, 450, 15, 95));
+        walls.push_back(Wall(450, 540, 95, 15));
+        walls.push_back(Wall(360, 90, 185, 15));
+        walls.push_back(Wall(360, 90, 15, 95));
+        walls.push_back(Wall(260, 0, 15, 375));
+        walls.push_back(Wall(260, 260, 105, 15));
+        walls.push_back(Wall(90, 360, 185, 15));
+        walls.push_back(Wall(90, 360, 15, 105));
+        walls.push_back(Wall(90, 460, 185, 15));
     }
-    
-    void MayMove(Player* player, string command) {
+
+    bool CheckWin(Player* player, int level) {
+        bool flag = false;
+        //проверяем находится ли игрок в области победы
+        if (winareas[level - 1].CheckWin(player->x, player->y, player->size)) {
+            flag = true;
+        }
+        return flag;
+    }
+
+    bool MayMove(Player* player, string command, int level) {
         int stepX = player->step, stepY = player->step;
         // проверка уменьшается ли координата на которую мы смещаемся (y перевернутый)
         if ((command == "up") || (command == "down")) {
@@ -111,7 +104,9 @@ public:
         }
         if (flag) {
             player->ChangeCoord(command);
+            return CheckWin(player, level);
         }
     }
+    
 };
 

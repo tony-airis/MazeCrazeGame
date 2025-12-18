@@ -1,5 +1,6 @@
 #pragma once
 #include "MazeFieldForm.h"
+#include "WinAreaForm.h"
 
 namespace MazeCraze {
 	
@@ -103,8 +104,13 @@ namespace MazeCraze {
 		this->Close();
 	}
 	private: System::Void btnStart_Click(System::Object^ sender, System::EventArgs^ e) {
-		MazeCraze::MazeFieldForm^ MazeField = gcnew MazeCraze::MazeFieldForm(this);
-		MazeField->Show();
+		// форма победы
+		MazeCraze::WinAreaForm^ WinAreaObj = gcnew MazeCraze::WinAreaForm(this);
+		WinAreaObj->Hide();
+		
+		// форма лабиринта
+		MazeCraze::MazeFieldForm^ MazeFieldObj = gcnew MazeCraze::MazeFieldForm(this, WinAreaObj);
+		MazeFieldObj->Show();
 		this->Hide();
 
 	}

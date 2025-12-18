@@ -120,6 +120,8 @@
   <ItemGroup>
     <ClCompile Include="MainMenuForm.cpp" />
     <ClCompile Include="MazeFieldForm.cpp" />
+    <ClCompile Include="WinArea.cpp" />
+    <ClCompile Include="WinAreaForm.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainMenuForm.h">
@@ -130,7 +132,12 @@
       <FileType>CppForm</FileType>
     </ClInclude>
     <ClInclude Include="Player.h" />
+    <ClInclude Include="Robber.h" />
     <ClInclude Include="Wall.h" />
+    <ClInclude Include="WinArea.h" />
+    <ClInclude Include="WinAreaForm.h">
+      <FileType>CppForm</FileType>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="MainMenuForm.resx">
@@ -138,6 +145,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="MazeFieldForm.resx">
       <DependentUpon>MazeFieldForm.h</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WinAreaForm.resx">
+      <DependentUpon>WinAreaForm.h</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
