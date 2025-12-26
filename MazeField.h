@@ -3,6 +3,7 @@
 #include "Wall.h"
 #include "Player.h"
 #include "WinArea.h"
+#include "Robber.h"
 #include <string>
 
 using namespace std;
@@ -11,11 +12,18 @@ class MazeField {
 public:
     vector <Wall> walls;
     vector <WinArea> winareas;
+    vector <Robber> robbers;
+    int level;
     //Player player;
 
+    MazeField(int level) {
+        this->level = level;
+    }
+    
     void CreateField() {
         //область победы
-        winareas.push_back(WinArea(360, 560, 460, 660));
+        winareas.push_back(WinArea(300, 560, 460, 660));
+        winareas.push_back(WinArea(300, 560, 460, 660));
         //стены
         walls.push_back(Wall(0, 0, 550, 15));
         walls.push_back(Wall(0, 0, 15, 185));
@@ -40,16 +48,42 @@ public:
         walls.push_back(Wall(90, 460, 185, 15));
     }
 
-    bool CheckWin(Player* player, int level) {
+    void CreateLevel2() {
+        // создаю 3-ех разбойников используя безмянный объект
+        robbers.push_back(Robber(475, 27));
+        robbers.push_back(Robber(478, 475));
+        robbers.push_back(Robber(120, 393));
+    }
+
+    int WhichLevel() {
+        return this->level;
+    }
+    void LevelUp() {
+        this->level++;
+        if (this->level == 2) {
+            CreateLevel2();
+        }
+    }
+
+    bool CheckWin(Player* player) {
         bool flag = false;
-        //проверяем находится ли игрок в области победы
+        
+        //проверяем находится ли игрок в области победы для всех уровней 
         if (winareas[level - 1].CheckWin(player->x, player->y, player->size)) {
             flag = true;
         }
+
+        // для второго и остальных уровней проверяем, что все воры схвачены
+        if (level >= 2) {
+            if (robbers.size() != 0) {
+                flag = false;
+            }
+        }
+
         return flag;
     }
 
-    bool MayMove(Player* player, string command, int level) {
+    bool MayMove(Player* player, string command) {
         int stepX = player->step, stepY = player->step;
         // проверка уменьшается ли координата на которую мы смещаемся (y перевернутый)
         if ((command == "up") || (command == "down")) {
@@ -63,6 +97,7 @@ public:
             stepY *= -1;
         }
 
+        // подвинулись мы или нет
         bool flag = true;
         for (int i = 0; i < walls.size(); i++) {
             // дальняя граница стены
@@ -102,10 +137,31 @@ public:
                 flag = false;
             }
         }
+
+        // если было движение 
         if (flag) {
+            // изменяем координаты игрока 
             player->ChangeCoord(command);
-            return CheckWin(player, level);
+
+            int grabI = -1;
+            // проверяем, был ли схвачен кто-то из воров
+            for (int i = 0; i < robbers.size(); i++) {
+                // если вор пойман
+                if (robbers[i].checkGrab(player)) {
+                    // запоминаем пойманного
+                    grabI = i;
+                }
+            }
+            // удаляем пойманного 
+            if (grabI != -1) {
+                vector <Robber>::iterator iter = robbers.begin();
+                robbers.erase(iter + grabI);
+            }
+
+            // проверяем наличие победы
+            return CheckWin(player);
         }
+        return false;
     }
     
 };

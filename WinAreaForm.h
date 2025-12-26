@@ -17,13 +17,15 @@ namespace MazeCraze {
 	{
 	public:
 		Form^ MainMenuObj; // создаем указатель на MainMenuForm (первую выскакивающую форму)
+		MazeField* MazeFieldObj;// создаем указатель MazeField (класс, который писал я)
+		
 
-		WinAreaForm(Form^ MMObj) {
+		WinAreaForm(Form^ MMObj, MazeField* MFObj) {
 			InitializeComponent();
-
-			
 			// присваиваем ссылку на MainMenuForm
 			this->MainMenuObj = MMObj;
+			//принимаем ссылку на MazeField
+			this->MazeFieldObj = MFObj;
 		}
 
 	protected:
@@ -105,7 +107,7 @@ namespace MazeCraze {
 		}
 #pragma endregion
 	private: System::Void btnNextLevel_Click(System::Object^ sender, System::EventArgs^ e) {
-		MazeCraze::MazeFieldForm^ MazeField = gcnew MazeCraze::MazeFieldForm(MainMenuObj, this);
+		MazeCraze::MazeFieldForm^ MazeField = gcnew MazeCraze::MazeFieldForm(MainMenuObj, this, MazeFieldObj);
 		MazeField->Show();
 		this->Hide();
 	}

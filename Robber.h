@@ -9,26 +9,19 @@ class Robber {
 public:
     int x;
     int y;
-    int size = 30;
-    int step;
+    int size = 40;
 
-    Robber() {
-        //coord = make_pair(20, 40);
-        //step = 10;
+    Robber(int x, int y) {
+        this->x = x;
+        this->y = y;
     }
 
-    //void ChangeCoord(string command) {
-    //    if (command == "up") {
-    //        y -= step;
-    //    }
-    //    if (command == "down") {
-    //        y += step;
-    //    }
-    //    if (command == "left") {
-    //        x -= step;
-    //    }
-    //    if (command == "right") {
-    //        x += step;
-    //    }
-    //}
+    // проверка на то, что роббер схвачен
+    bool checkGrab(Player* player) {
+        if ((player->x <= x) && (player->x + player->size >= x + size) &&
+            (player->y <= y) && (player->y + player->size >= y + size)) {
+            return true;
+        }
+        return false;
+    }
 };

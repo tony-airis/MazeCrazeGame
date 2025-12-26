@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "Robber.h"
 #include <iostream>
+#include <time.h>
 //#include "MainMenuForm.h"
 
 
@@ -22,30 +23,30 @@ namespace MazeCraze {
 	{
 	public:
 		//—оздание графических инструментов
-		Pen^ pen = gcnew Pen(Color::Blue, 10);
 		SolidBrush^ brushwhite = gcnew SolidBrush(Color::White);
 		SolidBrush^ brushblue = gcnew SolidBrush(Color::Blue);
+		SolidBrush^ brushyellow = gcnew SolidBrush(Color::Yellow);
 
 		MazeField* MazeFieldObj;// создаем указатель MazeField (класс, который писал €)
 		Form^ MainMenuObj;		// создаем указатель на MainMenuForm (первую выскакивающую форму)
 		Form^ WinAreaObj;		// создаем указатель на WinAreaForm 
 		Player* PlayerObj;		// создаем указатель на Player (класс, который писал €)
-		//Robber* RobberObj; // создаем указатель на Robber (класс, который написал €)
+		Robber* RobberObj; // создаем указатель на Robber (класс, который написал €)
 
+		//“аймер
+		Timer^ timer = gcnew Timer();
+
+
+		
 		bool winFlag = false; // флаг победы
 
-		MazeFieldForm(Form^ MMObj, Form^ WAObj) {
+		MazeFieldForm(Form^ MMObj, Form^ WAObj, MazeField* MFObj) {
 			InitializeComponent();
 			// создаем объекты моего класса
-			MazeFieldObj = new MazeField();  
 			
 			PlayerObj = new Player();
 			PlayerObj->x = 0;
 			PlayerObj->y = 190;
-
-		/*	RobberObj = new Robber();
-			RobberObj->x = 200;
-			RobberObj->y = 200;*/
 			
 			// присваиваем ссылку на MainMenuForm
 			this->MainMenuObj = MMObj; 
@@ -53,7 +54,10 @@ namespace MazeCraze {
 			// присваиваем ссылку на WinAreaForm
 			this->WinAreaObj = WAObj;
 
-			MazeFieldObj->CreateField();
+			// сохран€ю ссылку на MazeField
+			this->MazeFieldObj = MFObj;
+
+			
 		}
 
 	protected:
@@ -66,13 +70,6 @@ namespace MazeCraze {
 				// перед закрытием MazeFieldForm выполн€етс€ код диструктора -> снова открываетс€ MainMenuForm
 				this->MainMenuObj->Show();
 			}
-
-			// очищаем пам€ть от указател€ на мой класс
-			delete MazeFieldObj; 
-			// очищаем пам€ть от указател€
-			//delete MainMenuObj;
-			//// очищаем пам€ть от указател€
-			//delete WinAreaObj;
 			// очищаем пам€ть от указател€
 			delete PlayerObj;
 			
@@ -110,7 +107,7 @@ namespace MazeCraze {
 			this->AutoScaleDimensions = System::Drawing::SizeF(12, 25);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->BackColor = System::Drawing::SystemColors::ActiveCaptionText;
-			this->ClientSize = System::Drawing::Size(1874, 1129);
+			this->ClientSize = System::Drawing::Size(1111, 1070);
 			this->ForeColor = System::Drawing::SystemColors::ActiveCaptionText;
 			this->Name = L"MazeFieldForm";
 			this->Text = L"MazeCraze";
@@ -118,14 +115,23 @@ namespace MazeCraze {
 			this->KeyDown += gcnew System::Windows::Forms::KeyEventHandler(this, &MazeFieldForm::MazeFieldForm_KeyDown);
 			this->ResumeLayout(false);
 
+			//«адаем параметры дл€ таймера
+			// ак часто он обновл€етс€ (в млсек)
+			timer->Interval = 100;
+			// ака€ функци€ выываетс€ при каждом выхове таймера
+			timer->Tick += gcnew EventHandler(this, &MazeFieldForm::OnTimerTick);
+			timer->Start();
+
 		}
 #pragma endregion
+		void OnTimerTick(Object^ obj, EventArgs^ e) {
+			//перерисовываем изображение 10 раз в секунду
+			this->Refresh();
+		}
 	private: System::Void MazeFieldForm_Paint(System::Object^ sender, System::Windows::Forms::PaintEventArgs^ e) {
-		Refresh();
+
 		Graphics^ g = e->Graphics;
-		// –исуем пр€моугольник с верхним левым углом в точке (20, 20) и размерами 150x100
-		/*g->DrawRectangle(pen, 20, 20, 150, 100);
-		g->FillRectangle(brush, 20, 20, 150, 100); */
+
 		//надо пройтись по вектору стен в объекте mazeField и нарисовать пр€моугольники с координатами стен
 		for (int i = 0; i < MazeFieldObj->walls.size(); i++) {
 			//в coord сохранитс€ x1, y1, x2, y2
@@ -133,26 +139,41 @@ namespace MazeCraze {
 			int width = MazeFieldObj->walls[i].coord[2], height = MazeFieldObj->walls[i].coord[3];
 			g->FillRectangle(brushwhite, x1, y1, width, height);
 		}
+
+		//–исуем игрока
 		g->FillRectangle(brushblue, PlayerObj->x, PlayerObj->y, PlayerObj->size, PlayerObj->size);
+
+		//–исуем –азбойников
+		if ((MazeFieldObj->WhichLevel() > 1) && (MazeFieldObj->robbers.size() != 0)) {
+			int robberSize = MazeFieldObj->robbers[0].size;
+			for (int i = 0; i < MazeFieldObj->robbers.size(); i++) {
+				int x = MazeFieldObj->robbers[i].x;
+				int y = MazeFieldObj->robbers[i].y;
+				g->FillRectangle(brushyellow, x, y, robberSize, robberSize);
+			}
+		}
+		
+		//this->Invalidate();
 	}	
 	private: System::Void MazeFieldForm_KeyDown(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e) {
 		//Ќе забыть передавать уровень через переменную!
-		bool flag;
+		bool flag = false;
 		// ѕроверка на W or w
 		if (((int)e->KeyCode == 87) || ((int)e->KeyCode == 119)) {
-			flag = MazeFieldObj->MayMove(PlayerObj, "up", 1);
+			flag = MazeFieldObj->MayMove(PlayerObj, "up");
 		}
 		if (((int)e->KeyCode == 83) || ((int)e->KeyCode == 115)) {
-			flag = MazeFieldObj->MayMove(PlayerObj, "down", 1);
+			flag = MazeFieldObj->MayMove(PlayerObj, "down");
 		}
 		if (((int)e->KeyCode == 65) || ((int)e->KeyCode == 97)) {
-			flag = MazeFieldObj->MayMove(PlayerObj, "left", 1);
+			flag = MazeFieldObj->MayMove(PlayerObj, "left");
 		}
 		if (((int)e->KeyCode == 68) || ((int)e->KeyCode == 100)) {
-			flag = MazeFieldObj->MayMove(PlayerObj, "right", 1);
+			flag = MazeFieldObj->MayMove(PlayerObj, "right");
 		}
 		if (flag) {
 			this->winFlag = true;
+			MazeFieldObj->LevelUp();
 			WinAreaObj->Show();
 			this->Close();
 		}
